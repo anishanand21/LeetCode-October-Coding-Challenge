@@ -1,0 +1,82 @@
+Given the head of a linked list, return the list after sorting it in ascending order.
+
+Follow up: Can you sort the linked list in O(n logn) time and O(1) memory (i.e. constant space)?
+
+ 
+
+Example 1:
+Input: head = [4,2,1,3]
+Output: [1,2,3,4]
+
+Example 2:
+Input: head = [-1,5,3,4,0]
+Output: [-1,0,3,4,5]
+
+Example 3:
+Input: head = []
+Output: []
+
+CODE:
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+private:
+    ListNode * sortedMerge(ListNode * list1, ListNode * list2) {
+        
+        ListNode * sortedHead = nullptr;
+        
+        if(list1 == nullptr) return list2;
+            
+        if(list2 == nullptr) return list1;
+        
+        if(list1->val <= list2->val) {
+            sortedHead = list1;
+            sortedHead->next = sortedMerge(list1->next, list2);
+        }else {
+            sortedHead = list2;
+            sortedHead->next = sortedMerge(list1, list2->next);
+        }
+        
+        return sortedHead;
+    }
+    
+    ListNode * split(ListNode * list) {
+        ListNode * slow = list, * fast = list;
+        while(fast != nullptr && fast->next != nullptr && fast->next->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next;
+            if(fast->next != nullptr) {
+                fast = fast->next;
+            }
+        }
+        
+        ListNode * secondList = slow->next;
+        slow->next = nullptr;
+        return secondList;
+    }
+    
+    ListNode * mergeSort(ListNode* head) {
+        //Base Cases
+        if(head == nullptr || head->next == nullptr)
+            return head;
+        ListNode * secondHalf = split(head);
+        //head is nothing but firstHalf of splitted linked list.
+        ListNode * firstList = mergeSort(head);
+        ListNode * secondList = mergeSort(secondHalf);
+        return sortedMerge(firstList, secondList);
+    }
+    
+public:
+    ListNode* sortList(ListNode* head) {
+        return mergeSort(head);
+    }
+};
